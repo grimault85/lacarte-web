@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [clients, setClients] = useState([])
   const [devis,   setDevis]   = useState([])
   const [history, setHistory] = useState([])
+  const [notes,   setNotes]   = useState([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
   const today    = new Date(); today.setHours(0,0,0,0)
@@ -22,10 +23,12 @@ export default function Dashboard() {
       supabase.from('clients').select('*'),
       supabase.from('compta_devis').select('*').eq('statut','envoye'),
       supabase.from('history').select('*').order('created_at',{ascending:false}).limit(8),
-    ]).then(([c, d, h]) => {
+      supabase.from('cabinet_notes').select('*').order('updated_at',{ascending:false}),
+    ]).then(([c, d, h, n]) => {
       setClients(c.data||[])
       setDevis(d.data||[])
       setHistory(h.data||[])
+      setNotes(n.data||[])
       setLoading(false)
     })
   }, [])
@@ -210,6 +213,102 @@ export default function Dashboard() {
           </Section>
         </div>
       </div>
+
+      {/* Notes cabinet */}
+      <NotesWidget notes={notes} setNotes={setNotes} />
+
+    </div>
+  )
+}
+
+function NotesWidget({ notes, setNotes }) {
+  const [newTitre,  setNewTitre]  = useState('')
+  const [newCorps,  setNewCorps]  = useState('')
+  const [showForm,  setShowForm]  = useState(false)
+  const [saving,    setSaving]    = useState(false)
+  const [expanded,  setExpanded]  = useState(null)
+
+  async function handleSave() {
+    if (!newCorps.trim()) return
+    setSaving(true)
+    const row = { titre: newTitre.trim() || 'Note', contenu: newCorps.trim(), updated_at: new Date().toISOString() }
+    const { data } = await supabase.from('cabinet_notes').insert(row).select().single()
+    if (data) setNotes(prev => [data, ...prev])
+    setNewTitre(''); setNewCorps(''); setShowForm(false); setSaving(false)
+  }
+
+  async function handleDelete(id) {
+    await supabase.from('cabinet_notes').delete().eq('id', id)
+    setNotes(prev => prev.filter(n => n.id !== id))
+    if (expanded === id) setExpanded(null)
+  }
+
+  return (
+    <div style={{marginTop:20}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+        <span style={{fontSize:13,fontWeight:800,color:'#0D1520'}}>📝 Notes cabinet</span>
+        <button onClick={()=>setShowForm(f=>!f)} style={{...s.sectionBtn,background:showForm?'#FAF3E0':'none',border:showForm?'1px solid #C9A84C':'none',borderRadius:6,padding:'4px 10px'}}>
+          {showForm ? '✕ Annuler' : '+ Nouvelle note'}
+        </button>
+      </div>
+
+      {showForm && (
+        <div style={{background:'#fff',border:'1px solid #C9A84C',borderRadius:12,padding:'14px 16px',marginBottom:12}}>
+          <input value={newTitre} onChange={e=>setNewTitre(e.target.value)}
+            placeholder="Titre (optionnel)"
+            style={{width:'100%',padding:'8px 10px',border:'1px solid #DDD5B8',borderRadius:7,fontSize:13,marginBottom:8,boxSizing:'border-box',fontFamily:'DM Sans,sans-serif',background:'#FFFDF8',color:'#0D1520',outline:'none'}} />
+          <textarea value={newCorps} onChange={e=>setNewCorps(e.target.value)}
+            placeholder="Écrivez votre note ici…"
+            rows={4}
+            style={{width:'100%',padding:'8px 10px',border:'1px solid #DDD5B8',borderRadius:7,fontSize:13,resize:'vertical',boxSizing:'border-box',fontFamily:'DM Sans,sans-serif',background:'#FFFDF8',color:'#0D1520',outline:'none',lineHeight:1.6}} />
+          <div style={{display:'flex',justifyContent:'flex-end',marginTop:8}}>
+            <button onClick={handleSave} disabled={!newCorps.trim()||saving}
+              style={{background:'#C9A84C',color:'#0D1520',border:'none',borderRadius:7,padding:'8px 16px',fontSize:13,fontWeight:700,cursor:newCorps.trim()?'pointer':'default',opacity:newCorps.trim()?1:0.5,fontFamily:'DM Sans,sans-serif'}}>
+              {saving ? '…' : '💾 Enregistrer'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {notes.length === 0 && !showForm ? (
+        <div onClick={()=>setShowForm(true)}
+          style={{background:'#fff',border:'2px dashed #DDD5B8',borderRadius:12,padding:'28px',textAlign:'center',cursor:'pointer',color:'#94a3b8'}}
+          onMouseEnter={e=>e.currentTarget.style.borderColor='#C9A84C'}
+          onMouseLeave={e=>e.currentTarget.style.borderColor='#DDD5B8'}>
+          <div style={{fontSize:24,marginBottom:6}}>📝</div>
+          <div style={{fontSize:13,fontWeight:600,color:'#64748b'}}>Aucune note — cliquez pour en créer une</div>
+        </div>
+      ) : (
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:10}}>
+          {notes.map(note => (
+            <div key={note.id}
+              style={{background:'#fff',border:'1px solid #DDD5B8',borderRadius:12,padding:'12px 14px',borderLeft:'3px solid #C9A84C',cursor:'pointer'}}
+              onClick={()=>setExpanded(expanded===note.id?null:note.id)}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:6}}>
+                <span style={{fontWeight:700,fontSize:13,color:'#0D1520',flex:1,marginRight:8}}>{note.titre||'Note'}</span>
+                <div style={{display:'flex',gap:4,flexShrink:0}} onClick={e=>e.stopPropagation()}>
+                  <span style={{fontSize:10,color:'#94a3b8',marginRight:4}}>
+                    {note.updated_at ? new Date(note.updated_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}) : ''}
+                  </span>
+                  <button onClick={()=>handleDelete(note.id)}
+                    style={{background:'none',border:'none',cursor:'pointer',color:'#d1d5db',fontSize:14,padding:'0 2px',lineHeight:1}}
+                    onMouseEnter={e=>e.currentTarget.style.color='#dc2626'}
+                    onMouseLeave={e=>e.currentTarget.style.color='#d1d5db'}>✕</button>
+                </div>
+              </div>
+              <div style={{fontSize:12,color:'#64748b',lineHeight:1.6,
+                ...(expanded===note.id ? {whiteSpace:'pre-wrap'} : {overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'})}}>
+                {note.contenu}
+              </div>
+              {note.contenu.length > 120 && (
+                <div style={{fontSize:10,color:'#C9A84C',marginTop:4,fontWeight:600}}>
+                  {expanded===note.id ? '▲ Réduire' : '▼ Voir tout'}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
