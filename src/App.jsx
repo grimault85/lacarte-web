@@ -7,6 +7,7 @@ import Clients from './pages/Clients'
 import ClientDetail from './pages/ClientDetail'
 import Pipeline from './pages/Pipeline'
 import Facturation from './pages/Facturation'
+import Social from './pages/Social'
 import Layout from './components/Layout'
 
 export const AuthContext = createContext(null)
@@ -54,6 +55,7 @@ export default function App() {
           <Route path="clients/:id" element={<ClientDetail />} />
           <Route path="pipeline"    element={<Pipeline />} />
           <Route path="facturation" element={<Facturation />} />
+          <Route path="social"      element={<Social />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

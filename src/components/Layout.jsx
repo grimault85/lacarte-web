@@ -7,6 +7,7 @@ const NAV = [
   { to: '/clients',     icon: '📁', label: 'Dossiers clients' },
   { to: '/pipeline',    icon: '🎯', label: 'Pipeline' },
   { to: '/facturation', icon: '💰', label: 'Facturation' },
+  { to: '/social',       icon: '📱', label: 'Réseaux Sociaux' },
 ]
 
 export default function Layout() {

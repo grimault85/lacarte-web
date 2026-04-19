@@ -9,7 +9,7 @@ const STATUTS = [
   {key:'payee',             label:'Payée ✓',            color:'#059669',bg:'#d1fae5'},
   {key:'retard',            label:'En retard',          color:'#dc2626',bg:'#fee2e2'},
 ]
-const statutOf = k => STATUTS.find(s=>s.key===k)||STATUTS[0]
+const statutOf = k => STATUTS.find(s=>s.key===k) || STATUTS[0]
 const fmtEur   = v => new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(v||0)
 
 export default function Facturation() {
@@ -79,9 +79,12 @@ export default function Facturation() {
               <div key={f.id} style={s.card}>
                 <div style={s.cardTop}>
                   <div>
-                    <div style={s.num}>{f.numero}</div>
-                    <div style={s.co}>{cl?.name||f.client_nom||'—'}{f.formule?` · ${f.formule}`:''}</div>
-                    {f.date_emission&&<div style={s.date}>{new Date(f.date_emission).toLocaleDateString('fr-FR')}{f.date_echeance?` → ${new Date(f.date_echeance).toLocaleDateString('fr-FR')}`:''}</div>}
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
+                      <span style={{fontWeight:700,fontSize:14,color:'#0D1520'}}>{f.numero}</span>
+                      <span style={{background:st.bg,color:st.color,borderRadius:6,padding:'2px 8px',fontSize:11,fontWeight:700}}>{st.label}</span>
+                    </div>
+                    <div style={{fontSize:12,color:'#64748b'}}>{cl?.name||f.client_nom||'—'}{f.formule?` · ${f.formule}`:''}</div>
+                    {f.date_emission&&<div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>{new Date(f.date_emission).toLocaleDateString('fr-FR')}</div>}
                   </div>
                   <div style={{textAlign:'right'}}>
                     <div style={{fontSize:18,fontWeight:800,color:isPv?'#7c3aed':'#059669'}}>
@@ -93,7 +96,7 @@ export default function Facturation() {
                 </div>
                 {/* Changement statut */}
                 <div style={s.statutRow}>
-                  <span style={{background:st.bg,color:st.color,borderRadius:6,padding:'2px 8px',fontSize:11,fontWeight:700}}>{st.label}</span>
+                  <span style={{fontSize:11,color:'#94a3b8'}}>Statut :</span>
                   <select value={f.statut} onChange={e=>changeStatut(f.id,e.target.value)} style={s.select}>
                     {STATUTS.map(s2=><option key={s2.key} value={s2.key}>{s2.label}</option>)}
                   </select>
@@ -108,21 +111,18 @@ export default function Facturation() {
 }
 
 const s = {
-  page: {padding:'24px 20px',maxWidth:700,margin:'0 auto'},
-  title: {fontSize:28,fontFamily:'DM Serif Display, serif',color:'#0D1520',fontWeight:400,marginBottom:20},
-  kpis: {display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:20},
-  kpi: {background:'#fff',border:'1px solid #DDD5B8',borderRadius:12,padding:'14px'},
-  kpiLabel: {fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:0.5,marginBottom:4},
-  kpiVal: {fontSize:20,fontWeight:800},
-  filters: {display:'flex',gap:6,flexWrap:'wrap',marginBottom:16},
-  fBtn: {padding:'5px 12px',borderRadius:20,border:'1px solid #DDD5B8',background:'#fff',fontSize:12,fontWeight:500,cursor:'pointer',color:'#64748b',fontFamily:'DM Sans,sans-serif'},
-  fBtnActive: {background:'#FAF3E0',borderColor:'#C9A84C',color:'#0D1520',fontWeight:700},
-  list: {display:'flex',flexDirection:'column',gap:10},
-  card: {background:'#fff',border:'1px solid #DDD5B8',borderRadius:14,padding:'14px 16px'},
-  cardTop: {display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:10,marginBottom:10},
-  num: {fontSize:14,fontWeight:700,color:'#0D1520'},
-  co: {fontSize:12,color:'#64748b',marginTop:2},
-  date: {fontSize:11,color:'#94a3b8',marginTop:2},
-  statutRow: {display:'flex',alignItems:'center',gap:10},
-  select: {padding:'4px 8px',borderRadius:8,border:'1px solid #DDD5B8',fontSize:12,fontFamily:'DM Sans,sans-serif',background:'#FAF8F2',color:'#374151'},
+  page:      { padding:'20px 16px 40px', maxWidth:700, margin:'0 auto' },
+  title:     { fontSize:24, fontFamily:'DM Serif Display, serif', color:'#0D1520', fontWeight:400, marginBottom:20 },
+  kpis:      { display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10, marginBottom:20 },
+  kpi:       { background:'#fff', border:'1px solid #DDD5B8', borderRadius:12, padding:'14px' },
+  kpiLabel:  { fontSize:10, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:0.5, marginBottom:4 },
+  kpiVal:    { fontSize:20, fontWeight:800 },
+  filters:   { display:'flex', gap:6, flexWrap:'wrap', marginBottom:16 },
+  fBtn:      { padding:'5px 12px', borderRadius:20, border:'1px solid #DDD5B8', background:'#fff', fontSize:12, fontWeight:500, cursor:'pointer', color:'#64748b', fontFamily:'DM Sans,sans-serif' },
+  fBtnActive:{ background:'#FAF3E0', borderColor:'#C9A84C', color:'#0D1520', fontWeight:700 },
+  list:      { display:'flex', flexDirection:'column', gap:10 },
+  card:      { background:'#fff', border:'1px solid #DDD5B8', borderRadius:14, padding:'14px 16px' },
+  cardTop:   { display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:10, marginBottom:10 },
+  statutRow: { display:'flex', alignItems:'center', gap:10 },
+  select:    { padding:'4px 8px', borderRadius:8, border:'1px solid #DDD5B8', fontSize:12, fontFamily:'DM Sans,sans-serif', background:'#FAF8F2', color:'#374151' },
 }
