@@ -79,6 +79,7 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* Grille principale : 2 cols actions + 1 col notes */}
       <div style={s.grid}>
         <div style={s.col}>
 
@@ -212,11 +213,11 @@ export default function Dashboard() {
             }
           </Section>
         </div>
+
+        {/* Col 3 — Notes */}
+        <NotesWidget notes={notes} setNotes={setNotes} />
+
       </div>
-
-      {/* Notes cabinet */}
-      <NotesWidget notes={notes} setNotes={setNotes} />
-
     </div>
   )
 }
@@ -237,70 +238,71 @@ function NotesWidget({ notes, setNotes }) {
     setNewTitre(''); setNewCorps(''); setShowForm(false); setSaving(false)
   }
 
-  async function handleDelete(id) {
+  async function handleDelete(id, e) {
+    e.stopPropagation()
     await supabase.from('cabinet_notes').delete().eq('id', id)
     setNotes(prev => prev.filter(n => n.id !== id))
     if (expanded === id) setExpanded(null)
   }
 
   return (
-    <div style={{marginTop:20}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-        <span style={{fontSize:13,fontWeight:800,color:'#0D1520'}}>📝 Notes cabinet</span>
-        <button onClick={()=>setShowForm(f=>!f)} style={{...s.sectionBtn,background:showForm?'#FAF3E0':'none',border:showForm?'1px solid #C9A84C':'none',borderRadius:6,padding:'4px 10px'}}>
-          {showForm ? '✕ Annuler' : '+ Nouvelle note'}
+    <div style={{background:'#0D1520',borderRadius:14,padding:'16px',display:'flex',flexDirection:'column',minHeight:300}}>
+      {/* Header */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14,paddingBottom:10,borderBottom:'1px solid rgba(201,168,76,0.25)'}}>
+        <span style={{fontSize:13,fontWeight:800,color:'#EEE6C9',letterSpacing:0.3}}>📝 Notes</span>
+        <button onClick={()=>setShowForm(f=>!f)}
+          style={{background:showForm?'rgba(201,168,76,0.2)':'rgba(201,168,76,0.1)',border:'1px solid rgba(201,168,76,0.4)',borderRadius:6,padding:'4px 10px',fontSize:11,fontWeight:700,color:'#C9A84C',cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>
+          {showForm ? '✕' : '+ Note'}
         </button>
       </div>
 
+      {/* Formulaire */}
       {showForm && (
-        <div style={{background:'#fff',border:'1px solid #C9A84C',borderRadius:12,padding:'14px 16px',marginBottom:12}}>
+        <div style={{marginBottom:12}}>
           <input value={newTitre} onChange={e=>setNewTitre(e.target.value)}
             placeholder="Titre (optionnel)"
-            style={{width:'100%',padding:'8px 10px',border:'1px solid #DDD5B8',borderRadius:7,fontSize:13,marginBottom:8,boxSizing:'border-box',fontFamily:'DM Sans,sans-serif',background:'#FFFDF8',color:'#0D1520',outline:'none'}} />
+            style={{width:'100%',padding:'7px 10px',background:'rgba(255,255,255,0.07)',border:'1px solid rgba(201,168,76,0.3)',borderRadius:7,fontSize:12,color:'#EEE6C9',outline:'none',boxSizing:'border-box',fontFamily:'DM Sans,sans-serif',marginBottom:6,'::placeholder':{color:'#64748b'}}} />
           <textarea value={newCorps} onChange={e=>setNewCorps(e.target.value)}
-            placeholder="Écrivez votre note ici…"
-            rows={4}
-            style={{width:'100%',padding:'8px 10px',border:'1px solid #DDD5B8',borderRadius:7,fontSize:13,resize:'vertical',boxSizing:'border-box',fontFamily:'DM Sans,sans-serif',background:'#FFFDF8',color:'#0D1520',outline:'none',lineHeight:1.6}} />
-          <div style={{display:'flex',justifyContent:'flex-end',marginTop:8}}>
-            <button onClick={handleSave} disabled={!newCorps.trim()||saving}
-              style={{background:'#C9A84C',color:'#0D1520',border:'none',borderRadius:7,padding:'8px 16px',fontSize:13,fontWeight:700,cursor:newCorps.trim()?'pointer':'default',opacity:newCorps.trim()?1:0.5,fontFamily:'DM Sans,sans-serif'}}>
-              {saving ? '…' : '💾 Enregistrer'}
-            </button>
-          </div>
+            placeholder="Votre note…" rows={4}
+            style={{width:'100%',padding:'7px 10px',background:'rgba(255,255,255,0.07)',border:'1px solid rgba(201,168,76,0.3)',borderRadius:7,fontSize:12,color:'#EEE6C9',outline:'none',resize:'vertical',boxSizing:'border-box',fontFamily:'DM Sans,sans-serif',lineHeight:1.6}} />
+          <button onClick={handleSave} disabled={!newCorps.trim()||saving}
+            style={{marginTop:8,width:'100%',background:'#C9A84C',color:'#0D1520',border:'none',borderRadius:7,padding:'8px',fontSize:12,fontWeight:700,cursor:newCorps.trim()?'pointer':'default',opacity:newCorps.trim()?1:0.5,fontFamily:'DM Sans,sans-serif'}}>
+            {saving ? '…' : '💾 Enregistrer'}
+          </button>
         </div>
       )}
 
+      {/* Liste des notes */}
       {notes.length === 0 && !showForm ? (
         <div onClick={()=>setShowForm(true)}
-          style={{background:'#fff',border:'2px dashed #DDD5B8',borderRadius:12,padding:'28px',textAlign:'center',cursor:'pointer',color:'#94a3b8'}}
-          onMouseEnter={e=>e.currentTarget.style.borderColor='#C9A84C'}
-          onMouseLeave={e=>e.currentTarget.style.borderColor='#DDD5B8'}>
-          <div style={{fontSize:24,marginBottom:6}}>📝</div>
-          <div style={{fontSize:13,fontWeight:600,color:'#64748b'}}>Aucune note — cliquez pour en créer une</div>
+          style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',cursor:'pointer',opacity:0.5}}>
+          <div style={{fontSize:28,marginBottom:8}}>📝</div>
+          <div style={{fontSize:12,color:'#EEE6C9'}}>Aucune note</div>
+          <div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>Cliquez pour créer</div>
         </div>
       ) : (
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:10}}>
+        <div style={{display:'flex',flexDirection:'column',gap:8,flex:1}}>
           {notes.map(note => (
             <div key={note.id}
-              style={{background:'#fff',border:'1px solid #DDD5B8',borderRadius:12,padding:'12px 14px',borderLeft:'3px solid #C9A84C',cursor:'pointer'}}
-              onClick={()=>setExpanded(expanded===note.id?null:note.id)}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:6}}>
-                <span style={{fontWeight:700,fontSize:13,color:'#0D1520',flex:1,marginRight:8}}>{note.titre||'Note'}</span>
-                <div style={{display:'flex',gap:4,flexShrink:0}} onClick={e=>e.stopPropagation()}>
-                  <span style={{fontSize:10,color:'#94a3b8',marginRight:4}}>
+              onClick={()=>setExpanded(expanded===note.id?null:note.id)}
+              style={{background:'rgba(255,255,255,0.05)',border:'1px solid rgba(201,168,76,0.2)',borderLeft:'3px solid #C9A84C',borderRadius:'0 8px 8px 0',padding:'10px 12px',cursor:'pointer',transition:'background 0.15s'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:8}}>
+                <span style={{fontWeight:700,fontSize:12,color:'#EEE6C9',flex:1,lineHeight:1.3}}>{note.titre||'Note'}</span>
+                <div style={{display:'flex',alignItems:'center',gap:6,flexShrink:0}}>
+                  <span style={{fontSize:10,color:'rgba(238,230,201,0.35)'}}>
                     {note.updated_at ? new Date(note.updated_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}) : ''}
                   </span>
-                  <button onClick={()=>handleDelete(note.id)}
-                    style={{background:'none',border:'none',cursor:'pointer',color:'#d1d5db',fontSize:14,padding:'0 2px',lineHeight:1}}
+                  <button onClick={e=>handleDelete(note.id,e)}
+                    style={{background:'none',border:'none',cursor:'pointer',color:'rgba(238,230,201,0.25)',fontSize:13,padding:0,lineHeight:1,fontFamily:'DM Sans,sans-serif'}}
                     onMouseEnter={e=>e.currentTarget.style.color='#dc2626'}
-                    onMouseLeave={e=>e.currentTarget.style.color='#d1d5db'}>✕</button>
+                    onMouseLeave={e=>e.currentTarget.style.color='rgba(238,230,201,0.25)'}>✕</button>
                 </div>
               </div>
-              <div style={{fontSize:12,color:'#64748b',lineHeight:1.6,
+              <div style={{fontSize:11,color:'rgba(238,230,201,0.6)',lineHeight:1.6,marginTop:4,
                 ...(expanded===note.id ? {whiteSpace:'pre-wrap'} : {overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'})}}>
                 {note.contenu}
               </div>
-              {note.contenu.length > 120 && (
+              {note.contenu.length > 100 && (
                 <div style={{fontSize:10,color:'#C9A84C',marginTop:4,fontWeight:600}}>
                   {expanded===note.id ? '▲ Réduire' : '▼ Voir tout'}
                 </div>
@@ -350,7 +352,7 @@ const s = {
   sub:         { fontSize:13, color:'#94a3b8', marginTop:4 },
   shortcuts:   { display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10, marginBottom:20 },
   shortcut:    { position:'relative', background:'#fff', border:'1px solid #DDD5B8', borderRadius:14, padding:'14px 10px', display:'flex', flexDirection:'column', alignItems:'center', cursor:'pointer', fontFamily:'DM Sans,sans-serif', transition:'border-color 0.15s, box-shadow 0.15s' },
-  grid:        { display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 },
+  grid:        { display:'grid', gridTemplateColumns:'1fr 1fr 320px', gap:14, alignItems:'start' },
   col:         { display:'flex', flexDirection:'column', gap:14 },
   section:     { background:'#fff', border:'1px solid #DDD5B8', borderRadius:14, padding:'14px 16px' },
   sectionHead: { display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10, paddingBottom:8, borderBottom:'1.5px solid #DDD5B8' },
