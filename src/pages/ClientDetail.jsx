@@ -134,8 +134,7 @@ export default function ClientDetail() {
           {[
             { k:'email',      l:'Email',            v:client.email },
             { k:'phone',      l:'Téléphone',         v:client.phone },
-            { k:'revenue',    l:'Honoraires',        v:client.revenue ? fmtEur(client.revenue) : null },
-            { k:'nextAction', l:'Prochaine action',  v:client.nextAction },
+
             { k:'notes',      l:'Notes',             v:client.notes, multiline:true },
           ].map(f => (
             <div key={f.k} style={s.field}>

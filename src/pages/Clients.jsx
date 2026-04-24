@@ -55,7 +55,7 @@ export default function Clients() {
           {filtered.map(c => {
             const st   = stageOf(c.stage)
             const fm   = fmOf(c.formula)
-            const late = isOverdue(c.nextAction)
+            const late = false
             return (
               <div key={c.id} onClick={() => navigate(`/clients/${c.id}`)} style={s.card}>
                 <div style={s.cardTop}>
@@ -68,11 +68,7 @@ export default function Clients() {
                     <Badge color={fm.color} bg={fm.bg}>{fm.label}</Badge>
                   </div>
                 </div>
-                {c.nextAction && (
-                  <div style={{...s.nextAction, color:late?'#dc2626':'#64748b'}}>
-                    {late && '⚠ '}{c.nextAction}
-                  </div>
-                )}
+
               </div>
             )
           })}
