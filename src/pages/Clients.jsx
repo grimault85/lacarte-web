@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import BackToDashboard from '../components/BackToDashboard'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 
@@ -29,6 +30,7 @@ export default function Clients() {
 
   return (
     <div style={s.page}>
+      <BackToDashboard />
       <div style={s.header}>
         <h1 style={s.title}>Dossiers clients</h1>
         <span style={s.count}>{clients.length} dossiers</span>

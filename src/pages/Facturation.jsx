@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import BackToDashboard from '../components/BackToDashboard'
 import { supabase } from '../supabase'
 
 const STATUTS = [
@@ -38,6 +39,7 @@ export default function Facturation() {
 
   return (
     <div style={s.page}>
+      <BackToDashboard />
       <h1 style={s.title}>Facturation</h1>
 
       {/* KPIs */}

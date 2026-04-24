@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import BackToDashboard from '../components/BackToDashboard'
 import { supabase } from '../supabase'
 
 const THEMES  = [{key:'conseil',label:'Conseil & Tips',color:'#0369a1',bg:'#e0f2fe'},{key:'cas_client',label:'Cas client',color:'#059669',bg:'#d1fae5'},{key:'coulisses',label:'Coulisses',color:'#7c3aed',bg:'#ede9fe'},{key:'benchmark',label:'Benchmark',color:'#d97706',bg:'#fef3c7'},{key:'tendance',label:'Tendance CHR',color:'#dc2626',bg:'#fee2e2'},{key:'question',label:'Question',color:'#C9A84C',bg:'#FAF3E0'},{key:'autre',label:'Autre',color:'#6b7280',bg:'#f3f4f6'}]
@@ -13,6 +14,7 @@ export default function Social() {
   const TABS = [{key:'banque',label:'📝 Banque de contenus'},{key:'stats',label:'📊 Performance'}]
   return (
     <div style={s.page}>
+      <BackToDashboard />
       <h1 style={s.title}>Réseaux Sociaux</h1>
       <div style={s.tabs}>
         {TABS.map(t=>(

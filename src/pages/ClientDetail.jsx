@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import BackToDashboard from '../components/BackToDashboard'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { Badge } from './Clients'
@@ -87,6 +88,7 @@ export default function ClientDetail() {
 
   return (
     <div style={s.page}>
+      <BackToDashboard />
       {/* Back */}
       <button onClick={()=>navigate('/clients')} style={s.back}>← Dossiers</button>
 
