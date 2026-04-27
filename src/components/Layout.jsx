@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 
@@ -13,6 +13,19 @@ const NAV = [
 export default function Layout() {
   const navigate  = useNavigate()
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    const styleEl = document.createElement('style')
+    styleEl.textContent = `
+      @media (max-width: 768px) {
+        aside { display: none !important; }
+        [data-topbar] { display: flex !important; }
+        main { padding-top: 56px; }
+      }
+    `
+    document.head.appendChild(styleEl)
+    return () => document.head.removeChild(styleEl)
+  }, [])
 
   async function logout() {
     await supabase.auth.signOut()
@@ -131,13 +144,3 @@ const s = {
   main: { flex: 1, overflow: 'auto', paddingTop: 0 },
 }
 
-// CSS mobile hack — inject media queries
-const styleEl = document.createElement('style')
-styleEl.textContent = `
-  @media (max-width: 768px) {
-    aside { display: none !important; }
-    [data-topbar] { display: flex !important; }
-    main { padding-top: 56px; }
-  }
-`
-document.head.appendChild(styleEl)

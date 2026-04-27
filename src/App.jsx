@@ -1,14 +1,15 @@
-import React, { useState, useEffect, createContext, useContext } from 'react'
+import { lazy, Suspense, useState, useEffect, createContext, useContext } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from './supabase'
 import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
-import Clients from './pages/Clients'
-import ClientDetail from './pages/ClientDetail'
-import Pipeline from './pages/Pipeline'
-import Facturation from './pages/Facturation'
-import Social from './pages/Social'
 import Layout from './components/Layout'
+
+const Dashboard   = lazy(() => import('./pages/Dashboard'))
+const Clients     = lazy(() => import('./pages/Clients'))
+const ClientDetail = lazy(() => import('./pages/ClientDetail'))
+const Pipeline    = lazy(() => import('./pages/Pipeline'))
+const Facturation = lazy(() => import('./pages/Facturation'))
+const Social      = lazy(() => import('./pages/Social'))
 
 export const AuthContext = createContext(null)
 export const useAuth = () => useContext(AuthContext)
@@ -46,19 +47,21 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{ session, loading }}>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<RequireAuth><Layout /></RequireAuth>}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard"   element={<Dashboard />} />
-          <Route path="clients"     element={<Clients />} />
-          <Route path="clients/:id" element={<ClientDetail />} />
-          <Route path="pipeline"    element={<Pipeline />} />
-          <Route path="facturation" element={<Facturation />} />
-          <Route path="social"      element={<Social />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
+      <Suspense fallback={<FullLoader />}>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<RequireAuth><Layout /></RequireAuth>}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard"   element={<Dashboard />} />
+            <Route path="clients"     element={<Clients />} />
+            <Route path="clients/:id" element={<ClientDetail />} />
+            <Route path="pipeline"    element={<Pipeline />} />
+            <Route path="facturation" element={<Facturation />} />
+            <Route path="social"      element={<Social />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </Suspense>
     </AuthContext.Provider>
   )
 }
