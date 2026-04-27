@@ -30,6 +30,15 @@ cd C:\Users\GRIMAULT\documents\consulting\lacarte-web
 npm install
 ```
 
+Créer un fichier `.env.local` à la racine du projet :
+
+```
+VITE_SUPABASE_URL=https://eqkpugvccpolkgtnmpxs.supabase.co
+VITE_SUPABASE_ANON_KEY=<clé anon disponible dans Supabase → Settings → API>
+```
+
+> Ce fichier est exclu du dépôt git (`.gitignore`). Ne jamais committer les clés.
+
 ### Lancer en développement
 
 ```powershell
@@ -67,12 +76,13 @@ Vercel redéploie en ~1 minute sur `app.lacarte-conseil.fr`.
 ```
 lacarte-web/
 ├── src/
-│   ├── App.jsx               # Router principal + AuthContext
-│   ├── supabase.js           # Client Supabase
+│   ├── App.jsx               # Router principal + AuthContext + lazy loading
+│   ├── supabase.js           # Client Supabase (credentials via .env.local)
 │   ├── main.jsx              # Point d'entrée React
 │   ├── index.css             # Styles globaux
 │   ├── components/
-│   │   └── Layout.jsx        # Sidebar desktop + menu mobile
+│   │   ├── Layout.jsx        # Sidebar desktop + menu mobile
+│   │   └── BackToDashboard.jsx  # Bouton retour dashboard
 │   └── pages/
 │       ├── Login.jsx         # Page de connexion
 │       ├── Dashboard.jsx     # Tableau de bord cockpit
@@ -82,8 +92,10 @@ lacarte-web/
 │       ├── Facturation.jsx   # Suivi facturation
 │       └── Social.jsx        # Réseaux sociaux
 ├── public/
+├── .env.local                # Variables d'environnement (non versionné)
+├── .gitignore
 ├── vercel.json               # Rewrites SPA pour Vercel
-├── vite.config.js
+├── vite.config.js            # Build optimisé : code splitting + terser
 └── package.json
 ```
 
@@ -133,11 +145,21 @@ Les routes sont protégées par le composant `RequireAuth` — toute tentative d
 
 ---
 
+## Variables d'environnement
+
+| Variable | Description |
+|---|---|
+| `VITE_SUPABASE_URL` | URL du projet Supabase |
+| `VITE_SUPABASE_ANON_KEY` | Clé publique anon (Supabase → Settings → API) |
+
+En local : fichier `.env.local` (non versionné).
+Sur Vercel : Settings → Environment Variables.
+
+---
+
 ## Base de données
 
 Partagée avec l'application desktop. Les données sont synchronisées en temps réel — une modification dans l'app desktop est immédiatement visible sur le web, et inversement.
-
-**Supabase URL :** `https://eqkpugvccpolkgtnmpxs.supabase.co`
 
 ---
 
@@ -161,6 +183,17 @@ L'application est optimisée pour mobile et desktop :
 | Crème | `#EEE6C9` |
 | Police titres | DM Serif Display |
 | Police corps | DM Sans |
+
+---
+
+## Performance
+
+| Optimisation | Détail |
+|---|---|
+| Lazy loading | Les 6 pages sont chargées à la demande (`React.lazy` + `Suspense`) |
+| Code splitting | Bundle séparé vendor (React/Router) + supabase via `manualChunks` |
+| Minification | Terser activé en production |
+| Memoization | Calculs dérivés du Dashboard via `useMemo` |
 
 ---
 
