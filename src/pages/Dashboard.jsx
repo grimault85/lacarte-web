@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 
@@ -16,7 +16,7 @@ export default function Dashboard() {
   const [notes,   setNotes]   = useState([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
-  const today    = new Date(); today.setHours(0,0,0,0)
+  const today = useMemo(() => { const d = new Date(); d.setHours(0,0,0,0); return d }, [])
 
   useEffect(() => {
     Promise.all([
@@ -33,21 +33,21 @@ export default function Dashboard() {
     })
   }, [])
 
-  const actifs   = clients.filter(c => c.stage !== 'cloture')
-  const retards  = actifs.filter(c => isOverdue(c.nextAction)).sort((a,b) => new Date(a.nextAction)-new Date(b.nextAction))
-  const sansAction = actifs.filter(c => !c.nextAction)
-  const retainers  = clients.filter(c => c.formula==='suivi_mensuel' && c.stage!=='cloture')
-  const missions   = actifs.filter(c => ['questionnaire','audit'].includes(c.stage)).map(c => {
+  const actifs   = useMemo(() => clients.filter(c => c.stage !== 'cloture'), [clients])
+  const retards  = useMemo(() => actifs.filter(c => isOverdue(c.nextAction)).sort((a,b) => new Date(a.nextAction)-new Date(b.nextAction)), [actifs])
+  const sansAction = useMemo(() => actifs.filter(c => !c.nextAction), [actifs])
+  const retainers  = useMemo(() => clients.filter(c => c.formula==='suivi_mensuel' && c.stage!=='cloture'), [clients])
+  const missions   = useMemo(() => actifs.filter(c => ['questionnaire','audit'].includes(c.stage)).map(c => {
     const total = TASKS_COUNT[c.formula]?.[c.stage] || 4
     const done  = (c.tasks?.[c.stage]||[]).filter(Boolean).length
     return { ...c, done, total, pct: Math.round(done/total*100) }
-  }).sort((a,b) => a.pct - b.pct)
-  const devisSansReponse = devis.map(d => ({...d, jours: Math.floor((today-new Date(d.date_emission))/86400000)})).sort((a,b)=>b.jours-a.jours)
-  const relances = clients.filter(c => {
+  }).sort((a,b) => a.pct - b.pct), [actifs])
+  const devisSansReponse = useMemo(() => devis.map(d => ({...d, jours: Math.floor((today-new Date(d.date_emission))/86400000)})).sort((a,b)=>b.jours-a.jours), [devis, today])
+  const relances = useMemo(() => clients.filter(c => {
     if(c.stage!=='cloture') return false
     const ref = c.updated_at||c.created_at
     return ref && Math.floor((today-new Date(ref))/86400000) > 60
-  }).map(c => ({...c, jours: Math.floor((today-new Date(c.updated_at||c.created_at))/86400000)})).slice(0,4)
+  }).map(c => ({...c, jours: Math.floor((today-new Date(c.updated_at||c.created_at))/86400000)})).slice(0,4), [clients, today])
   const totalAlertes = retards.length + sansAction.length
 
   if (loading) return <Loader />
