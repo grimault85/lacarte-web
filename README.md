@@ -58,7 +58,7 @@ npm run preview   # tester le build localement
 
 ## Déploiement
 
-Le projet est connecté à GitHub. Chaque `git push` déclenche un redéploiement automatique sur Vercel.
+Le projet est connecté à GitHub. Chaque `git push` sur `main` déclenche un build automatique sur Vercel.
 
 ```powershell
 cd C:\Users\GRIMAULT\documents\consulting\lacarte-web
@@ -67,7 +67,16 @@ git commit -m "description des changements"
 git push
 ```
 
-Vercel redéploie en ~1 minute sur `app.lacarte-conseil.fr`.
+### ⚠️ Promotion manuelle requise
+
+**"Auto-assign Custom Production Domains" est désactivé sur Vercel.** Le build se déclenche automatiquement mais le domaine `app.lacarte-conseil.fr` n'est **pas mis à jour automatiquement**.
+
+Après chaque `git push`, il faut manuellement promouvoir le déploiement :
+
+1. Vercel → **Deployments**
+2. Dernier déploiement → `...` → **Promote to Production**
+
+> Pour activer la mise à jour automatique : Vercel → Settings → Git → activer **"Auto-assign Custom Production Domains"**.
 
 ---
 
