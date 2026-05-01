@@ -240,4 +240,4 @@ La version web est conçue pour la **mobilité et les actions rapides**. Certain
 ## Auteur
 
 **Anthony Grimault** — Fondateur La Carte Advisory
-📧 lacarte.advisory@gmail.com
+📧 contact@lacarte-conseil.fr

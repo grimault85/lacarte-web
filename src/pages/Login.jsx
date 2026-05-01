@@ -45,7 +45,7 @@ export default function Login() {
             <label style={styles.label}>Email</label>
             <input
               type="email" value={email} onChange={e => setEmail(e.target.value)}
-              required autoFocus placeholder="lacarte.advisory@gmail.com"
+              required autoFocus placeholder="contact@lacarte-conseil.fr"
               style={styles.input}
             />
           </div>
